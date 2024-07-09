@@ -1,0 +1,51 @@
+{
+  "name": "skull-king-score-keeper",
+  "version": "1.0.0",
+  "description": "A web app for keeping score in the Skull King card game",
+  "scripts": {
+    "dev": "parcel src/index.html",
+    "build": "parcel build src/index.html --no-source-maps --public-url ./",
+    "serve": "npx http-server dist -p 3001"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.1.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.402.0",
+    "npm-check-updates": "^16.14.20",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.4.0",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.19",
+    "http-server": "^14.1.1",
+    "parcel": "^2.12.0",
+    "parcel-resolver-tspaths": "^0.0.9",
+    "postcss": "^8.4.39",
+    "process": "^0.11.10",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.5.3"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
