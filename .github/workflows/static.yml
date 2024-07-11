@@ -41,8 +41,11 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Install node packages
+        run: nix develop -c pnpm install
+
       - name: Build
-        run: nix develop -c pnpm install && nix develop -c pnpm build
+        run: nix develop -c pnpm build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
