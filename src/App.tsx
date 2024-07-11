@@ -1,12 +1,14 @@
-import React from 'react';
-import SkullKingScoreKeeper from './components/skull-king-scorekeeper';
+// import reactLogo from './assets/react.svg'
+// import viteLogo from '/vite.svg'
+import './App.css'
+import SkullKingScoreKeeper from '@/components/skull-king-scorekeeper';
 
-const App: React.FC = () => {
+function App() {
   return (
-    <div>
+    <div className="App">
       <SkullKingScoreKeeper />
     </div>
-  );
-};
+  )
+}
 
-export default App;
+export default App
