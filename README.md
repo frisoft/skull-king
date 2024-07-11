@@ -1,3 +1,4 @@
-# Skull King Score
 
-Experiment of a project created using Claude AI
+# Skull King
+
+A [Skull King game score calculator Progressive Web App](https://frisoft.it/skull-king).
