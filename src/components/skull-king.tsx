@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +31,8 @@ const SkullKing: React.FC = () => {
   const [players, setPlayers] = useState(['Player 1', 'Player 2']);
   const [rounds, setRounds] = useState<Round[]>([]);
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0);
+  const [newPlayerIndex, setNewPlayerIndex] = useState<number | null>(null);
+  const playerInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const specialCards = [
     { name: 'Mermaid', max: 2 },
@@ -55,6 +57,13 @@ const SkullKing: React.FC = () => {
          playerScore.bid === playerScore.tricks;
   };
 
+  useEffect(() => {
+    if (newPlayerIndex !== null && playerInputRefs.current[newPlayerIndex]) {
+      playerInputRefs.current[newPlayerIndex]?.focus();
+      setNewPlayerIndex(null);
+    }
+  }, [newPlayerIndex]);
+  
   const canAddPlayer = () => {
     return players.length < MAX_PLAYERS;
   };
@@ -76,12 +85,15 @@ const SkullKing: React.FC = () => {
   };
 
   const addPlayer = () => {
+    const newIndex = players.length;
     setPlayers([...players, `Player ${players.length + 1}`]);
+    setNewPlayerIndex(newIndex);
   };
 
   const removePlayer = (index: number) => {
     const updatedPlayers = players.filter((_, i) => i !== index);
     setPlayers(updatedPlayers);
+    playerInputRefs.current = playerInputRefs.current.filter((_, i) => i !== index);
   };
 
   const updatePlayerName = (index: number, newName: string) => {
@@ -198,8 +210,10 @@ const SkullKing: React.FC = () => {
             {players.map((player, index) => (
               <div key={index} className="flex items-center mb-2">
                 <Input
+                  ref={(el) => playerInputRefs.current[index] = el}
                   value={player}
                   onChange={(e) => updatePlayerName(index, e.target.value)}
+                  onFocus={(e) => e.target.setSelectionRange(0, e.target.value.length)}
                   className="flex-grow mr-2"
                 />
                 <Button onClick={() => removePlayer(index)} className="p-1" disabled={!canRemovePlayer()}><X size={16} /></Button>
