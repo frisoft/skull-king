@@ -1,12 +1,12 @@
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
 import './App.css'
-import SkullKingScoreKeeper from '@/components/skull-king-scorekeeper';
+import SkullKing from '@/components/skull-king';
 
 function App() {
   return (
     <div className="App">
-      <SkullKingScoreKeeper />
+      <SkullKing />
     </div>
   )
 }
