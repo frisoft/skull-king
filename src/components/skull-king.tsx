@@ -23,7 +23,11 @@ interface Round {
   playerScores: PlayerScore[];
 }
 
-const SkullKingScoreKeeper: React.FC = () => {
+const SkullKing: React.FC = () => {
+
+  const MIN_PLAYERS = 2;
+  const MAX_PLAYERS = 8;
+  
   const [players, setPlayers] = useState(['Player 1', 'Player 2']);
   const [rounds, setRounds] = useState<Round[]>([]);
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0);
@@ -51,6 +55,14 @@ const SkullKingScoreKeeper: React.FC = () => {
          playerScore.bid === playerScore.tricks;
   };
 
+  const canAddPlayer = () => {
+    return players.length < MAX_PLAYERS;
+  };
+  
+  const canRemovePlayer = () => {
+   return players.length > MIN_PLAYERS;
+  };
+  
   const shouldEnableNextRound = (rounds: Round[], currentRoundIndex: number) => {
     return rounds.length === 0 || (currentRoundIndex === rounds.length - 1 && rounds.length < 10)
   };
@@ -190,10 +202,10 @@ const SkullKingScoreKeeper: React.FC = () => {
                   onChange={(e) => updatePlayerName(index, e.target.value)}
                   className="flex-grow mr-2"
                 />
-                <Button onClick={() => removePlayer(index)} className="p-1"><X size={16} /></Button>
+                <Button onClick={() => removePlayer(index)} className="p-1" disabled={!canRemovePlayer()}><X size={16} /></Button>
               </div>
             ))}
-            <Button onClick={addPlayer} className="w-full mt-2">Add Player</Button>
+            <Button onClick={addPlayer} className="w-full mt-2" disabled={!canAddPlayer()}>Add Player</Button>
           </CardContent>
         </Card>
         {shouldEnableNextRound(rounds, currentRoundIndex) && (
@@ -291,4 +303,4 @@ const SkullKingScoreKeeper: React.FC = () => {
   );
 };
 
-export default SkullKingScoreKeeper;
+export default SkullKing;
