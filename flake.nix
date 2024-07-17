@@ -16,6 +16,7 @@
     flake-utils.lib.eachDefaultSystem (system:
       let pkgs = nixpkgs.legacyPackages.${system};
       in {
-        devShell = with pkgs; mkShell { buildInputs = [ git nodejs pnpm ]; };
+        devShell = with pkgs;
+          mkShell { buildInputs = [ git nodejs pnpm patchutils_0_4_2 ]; };
       });
 }
