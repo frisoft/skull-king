@@ -8,7 +8,7 @@ A Progressive Web App (PWA) for calculating scores in the Skull King card game.
 
 ## Features
 
-<img style="float: right;" src="screenshot.png">
+<img align="right" width="300" src="screenshot.png">
 
 - **Score Calculation**: Easily track and calculate scores for 2-8 players in the Skull King game.
 - **Round Management**: Navigate through up to 10 rounds of gameplay.
