@@ -1,6 +1,8 @@
 # Skull King Score Calculator
 
-<img src="skull-king-icon.svg" alt="Diagram" style="display: block; margin: 0 auto;" width="300" height="300">
+<h1 align="center">
+  <img src="skull-king-icon.svg" alt="Diagram" style="display: block; margin: 0 auto;" width="300" height="300">
+</h1>
 
 A Progressive Web App (PWA) for calculating scores in the Skull King card game.
 
