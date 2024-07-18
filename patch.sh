@@ -22,9 +22,9 @@ if [[ "$OSTYPE" != "darwin"* ]] && [ -z "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" 
   echo "Note: You are not in a graphical environment. Clipboard functionality may be limited."
 fi
 
-clipboard_paste | (recountdiff && echo "") | patch -p0 -F4 --dry-run --ignore-whitespace --verbose && \
-  echo "WORKS!"
-
-
 # clipboard_paste | (recountdiff && echo "") | patch -p0 -F4 --dry-run --ignore-whitespace --verbose && \
-#   clipboard_paste | (recountdiff && echo "") | patch -p0 -F4 --ignore-whitespace
+#   echo "WORKS!"
+
+
+clipboard_paste | (recountdiff && echo "") | patch -p0 -F4 --dry-run --ignore-whitespace --verbose && \
+  clipboard_paste | (recountdiff && echo "") | patch -p0 -F4 --ignore-whitespace
