@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { cn } from "@/lib/utils";
 import { PlayerScore, Round, SortedPlayerScore } from '@/types';
 
 const SkullKing: React.FC = () => {
@@ -23,6 +24,19 @@ const SkullKing: React.FC = () => {
     { name: 'S. King', max: 1 },
     { name: '+10', max: 5 }
   ];
+
+  const getButtonClasses = (cardName: string): string => {
+    switch (cardName) {
+      case 'Pirate':
+        return 'bg-red-700 hover:bg-red-800 text-white border-red-700';
+      case 'Mermaid':
+        return 'bg-[#20B2AA] hover:bg-[#008B8B] text-white border-[#20B2AA]';
+      case '+10':
+        return 'bg-[#2E8B57] hover:bg-[#228B22] text-white border-[#2E8B57]';
+      default:
+        return '';
+    }
+  };
 
   const resetGame = () => {
     // setPlayers(['Player 1', 'Player 2']);
@@ -256,7 +270,7 @@ const SkullKing: React.FC = () => {
                   <Button 
                     key={card.name} 
                     onClick={() => updateSpecialCard(playerIndex, card.name)} 
-                    className="text-xs px-2 py-1 flex items-between"
+                    className={cn("text-xs px-2 py-1 flex items-center", getButtonClasses(card.name))}
                     disabled={!shouldEnableSpecialCards(playerScore)}
                   >{card.name}: <span className="font-bold ml-1 text-sm">{playerScore.specialCards[card.name]}</span></Button>
                 ))}
