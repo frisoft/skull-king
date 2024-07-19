@@ -10,11 +10,13 @@
     "preview": "rm -rf node_modules/.vite && vite preview"
   },
   "dependencies": {
+    "@hugov/shorter-string": "^6.1.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-slot": "^1.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.407.0",
+    "qrcode.react": "^3.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwind-merge": "^2.4.0",
