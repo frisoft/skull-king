@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { cn } from "@/lib/utils";
 import { PlayerScore, Round, SortedPlayerScore } from '@/types';
+import { encode, decode } from '@hugov/shorter-string';
+import QRCode from 'qrcode.react';
 
 const SkullKing: React.FC = () => {
 
@@ -17,6 +19,7 @@ const SkullKing: React.FC = () => {
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0);
   const [newPlayerIndex, setNewPlayerIndex] = useState<number | null>(null);
   const playerInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [showQRCode, setShowQRCode] = useState(false);
 
   const specialCards = [
     { name: 'Mermaid', max: 2 },
@@ -68,7 +71,22 @@ const SkullKing: React.FC = () => {
       setNewPlayerIndex(null);
     }
   }, [newPlayerIndex]);
-  
+
+  // When mounting the component, check if there is a state in the URL
+  useEffect(() => {
+    const decodedState = decodeStateFromUrl();
+    if (decodedState) {
+      setPlayers(decodedState.players);
+      setRounds(decodedState.rounds);
+      setCurrentRoundIndex(decodedState.rounds.length - 1);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Hide QR code when state changes
+    setShowQRCode(false);
+  }, [players, rounds]);
+
   const canAddPlayer = () => {
     return players.length < MAX_PLAYERS;
   };
@@ -163,23 +181,31 @@ const SkullKing: React.FC = () => {
   const calculateScore = (rounds: Round[], roundIndex: number, playerIndex: number) => {
     const round = rounds[roundIndex];
     const player = round.playerScores[playerIndex];
-    const extraPoints =
-      player.specialCards['Mermaid'] * 20 +
-      player.specialCards['Pirate'] * 30 +
-      player.specialCards['S. King'] * 40 +
-      player.specialCards['+10'] * 10;
 
-    if (player.bid === null || player.tricks === null) {
-      player.score = 0;
-    } else if (player.bid === 0) {
-      player.score = round.roundNumber * (player.tricks === 0 ? 10 : -10);
-    } else {
-      if (player.bid === player.tricks) {
-        player.score = player.bid * 20 + extraPoints;
-      } else {
-        player.score = Math.abs(player.bid - player.tricks) * -10;
-      }
+    player.score = calculatePlayerScore(player, round.roundNumber);
+  };
+
+  const calculatePlayerScore = (playerScore: PlayerScore, roundNumber: number): number => {
+    const { bid, tricks, specialCards } = playerScore;
+    let score = 0;
+
+    if (bid === null || tricks === null) {
+      return 0;
     }
+
+    if (bid === 0) {
+      score = roundNumber * (tricks === 0 ? 10 : -10);
+    } else if (bid === tricks) {
+      score = bid * 20;
+      score += specialCards['Mermaid'] * 20;
+      score += specialCards['Pirate'] * 30;
+      score += specialCards['S. King'] * 40;
+      score += specialCards['+10'] * 10;
+    } else {
+      score = Math.abs(bid - tricks) * -10;
+    }
+
+    return score;
   };
 
   const calculateTotal = (playerIndex: number) => {
@@ -201,6 +227,89 @@ const SkullKing: React.FC = () => {
     if (newIndex >= 0 && newIndex < rounds.length) {
       setCurrentRoundIndex(newIndex);
     }
+  };
+
+  const generateShareableLink = () => {
+    const compressedState = compressState(players, rounds);
+    const json = JSON.stringify(compressedState);
+    // console.log(json);
+    const encoded = encode(json);
+    // console.log(encoded);
+    const urlEncoded = encodeURIComponent(encoded);
+    // console.log(urlEncoded);
+    return `${window.location.origin}${window.location.pathname}?s=${urlEncoded}`;
+  };
+
+  const handleShareLink = async () => {
+    const link = generateShareableLink();
+
+    // Update the URL without reloading the page
+    window.history.pushState({}, '', link);
+
+    try {
+      await navigator.clipboard.writeText(link);
+      // Toggle QR code display
+      setShowQRCode(!showQRCode);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
+  const decodeStateFromUrl = (): { players: string[], rounds: Round[] } | null => {
+    const params = new URLSearchParams(window.location.search);
+    const encoded = params.get('s');
+    if (encoded) {
+      try {
+        const decodedString = decode(decodeURIComponent(encoded));
+        const compressedState = JSON.parse(decodedString);
+        return decompressState(compressedState);
+      } catch (error) {
+        console.error('Failed to decode state from URL', error);
+      }
+    }
+    return null;
+  };
+
+  const compressState = (players: string[], rounds: Round[]): any => {
+    const compressedSpecialCards = (cards: Record<string, number>) => {
+      const values = [cards['Mermaid'], cards['Pirate'], cards['S. King'], cards['+10']];
+      return values.every(v => v === 0) ? [] : values;
+    };
+
+    return [
+      players,
+      rounds.map(round => [
+        round.roundNumber,
+        round.playerScores.map(score => [
+          score.bid,
+          score.tricks,
+          compressedSpecialCards(score.specialCards)
+        ])
+      ])
+    ];
+  };
+
+  const decompressState = (compressed: any): { players: string[], rounds: Round[] } => {
+    const [players, compressedRounds] = compressed;
+    const specialCardNames = ['Mermaid', 'Pirate', 'S. King', '+10'];
+
+    const rounds: Round[] = compressedRounds.map((round: any) => ({
+      roundNumber: round[0],
+      playerScores: round[1].map((score: any, index: number) => {
+        const specialCards = score[2].length === 0 ? [0, 0, 0, 0] : score[2];
+        const playerScore: PlayerScore = {
+          name: players[index],
+          bid: score[0],
+          tricks: score[1],
+          specialCards: Object.fromEntries(specialCardNames.map((name, i) => [name, specialCards[i]])),
+          score: 0
+        };
+        playerScore.score = calculatePlayerScore(playerScore, round[0]);  // Recalculate score
+        return playerScore;
+      })
+    }));
+
+    return { players, rounds };
   };
 
   if (rounds.length === 0) {
@@ -318,6 +427,20 @@ const SkullKing: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <div className="mt-4">
+        {showQRCode && (
+          <div className="mt-4 flex flex-col items-center">
+            <QRCode value={window.location.href} size={200} />
+            <p className="mt-2 text-sm">Link copied to clipboard! Or scan this QR code</p>
+          </div>
+        )}
+        {!showQRCode && (
+        <Button onClick={handleShareLink} className="h-8 px-3 text-sm" variant="outline">
+          <Share2 className="mr-2" size={16} /> Share
+        </Button>
+        )}
+      </div>
     </div>
   );
 };
