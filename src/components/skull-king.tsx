@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, X, Share2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Share2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -51,9 +51,17 @@ const SkullKing: React.FC = () => {
     return round.playerScores.reduce((total, player) => total + (player.tricks ?? 0), 0);
   };
 
-  const isTrickLimitReached = (round: Round): boolean => {
-    return calculateTotalTricks(round) >= round.roundNumber;
+  const tricksLeft = (round: Round): number => {
+    return round.roundNumber - calculateTotalTricks(round);
   };
+
+  const isTrickLimitReached = (round: Round): boolean => {
+    return calculateTotalTricks(round) == round.roundNumber;
+  };
+
+  const isTrickLimitExceeded = (round: Round): boolean => {
+    return calculateTotalTricks(round) > round.roundNumber;
+  }; 
 
   const shouldDisableTricks = (playerScore: PlayerScore) => {
     return playerScore.bid === null;
@@ -312,6 +320,27 @@ const SkullKing: React.FC = () => {
     return { players, rounds };
   };
 
+  const renderTricksLeftMessage = (round: Round) => {
+    const roundTricksLeft = tricksLeft(round); 
+    if (roundTricksLeft > 0) {
+      return (
+        <div className="flex items-center justify-center text-blue-500 font-bold mt-2">
+          <AlertTriangle className="mr-2" />{roundTricksLeft} tricks left!
+        </div>
+      );
+    }
+  };
+
+  const renderTrickLimitExceededMessage = (round: Round) => {
+    if (isTrickLimitExceeded(round)) {
+      return (
+        <div className="flex items-center justify-center text-red-500 font-bold mt-2">
+          <AlertTriangle className="mr-2" />Too many tricks!
+        </div>
+      );
+    }
+  };
+
   if (rounds.length === 0) {
     return (
       <div className="p-2 max-w-sm mx-auto">
@@ -386,6 +415,8 @@ const SkullKing: React.FC = () => {
               </div>
             </div>
           ))}
+          {renderTrickLimitExceededMessage(rounds[currentRoundIndex])}
+          {renderTricksLeftMessage(rounds[currentRoundIndex])}
         </CardContent>
       </Card>
 
